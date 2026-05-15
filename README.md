@@ -1,5 +1,10 @@
 Aplicación de chat en tiempo real construida con FastAPI, WebSockets y PostgreSQL.
 
+<img width="873" height="763" alt="image" src="https://github.com/user-attachments/assets/72d4e3dc-1df0-41c5-ad1d-2283331b42a4" />
+<img width="1901" height="934" alt="image" src="https://github.com/user-attachments/assets/4da286fd-97b7-461e-b095-6f009a0c2ada" />
+<img width="911" height="802" alt="image" src="https://github.com/user-attachments/assets/3a15e5f1-f098-4af5-89da-04d7a927c351" />
+
+
 ## Características
 
 - **Mensajería en Tiempo Real**: Comunicación instantánea mediante WebSockets.
