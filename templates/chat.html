@@ -3,44 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>pythonChat</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    <title>QuickChat</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
     <nav>
         <div class="nav-left">
-            <img src="{{ url_for('static', filename='logo.webp') }}" alt="Logo" class="logo">
-            <h1>pythonChat</h1>
+            <img src="/static/logo.webp" alt="Logo" class="logo">
+            <h1>QuickChat</h1>
         </div>
         <div class="nav-right">
-            <span>Bienvenido, <b style="color: {{ current_user.color }};">{{ current_user.username }}</b></span>
-            <button class="logout-button" onclick="location.href='{{ url_for('logout') }}'">
-                <img class="logout-img" src="{{ url_for('static', filename='logout.svg') }}" alt="Borrar historial" />
+            <span>Bienvenido, <b id="user-nickname">...</b></span>
+            <button class="settings-button" onclick="openColorPicker()" title="Configuración">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+            <button class="logout-button" onclick="logout()" title="Cerrar sesión">
+                <img src="/static/logout.svg" alt="Logout" />
             </button>
         </div>
     </nav>
-</head>
 
-<body>
     <div id="chat-container">
-        <div id="messages">
-            <!-- Iterar sobre los mensajes pasados por Flask -->
-            {% for message in messages %}
-            <div>
-                <span class="message-time" data-utc-time="{{ message.timestamp.isoformat() }}Z">[{{ message.timestamp.strftime('%H:%M:%S') }}]</span>
-                <span style="color: {{ message.color }}"><b>{{ message.nickname }}</b></span>: {{ message.text }}
-            </div>
-            {% endfor %}
+        <div class="status-indicator">
+            <span class="status-dot" id="status-dot"></span>
+            <span id="status-text">Conectando...</span>
+            <span class="status-divider"></span>
+            <span class="status-users">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span id="online-count">0</span>
+            </span>
         </div>
-        
+
+        <div id="messages">
+        </div>
+
         <div id="input-container">
-            <input type="text" id="message-input" placeholder="Escribe un mensaje...">
-            <button onclick="sendMessage()">Enviar</button>
-            <button onclick="clearMessages()" title="Borrar historial de mensajes">
-                <img src="{{ url_for('static', filename='trash-can.svg') }}" alt="Borrar historial" />
-            </button>            
+            <div class="input-wrapper">
+                <input type="text" id="message-input" placeholder="Escribe un mensaje..." maxlength="2000" autocomplete="off">
+                <button class="input-btn" onclick="sendMessage()">
+                    <span class="btn-text">Enviar</span>
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
+                </button>
+            </div>
+            <button class="input-btn-icon input-emoji-btn" onclick="event.stopPropagation(); toggleEmojiPicker()" title="Emojis">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+            </button>
         </div>
     </div>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <div id="color-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configuración de perfil</h3>
+                <button class="modal-close" onclick="closeColorPicker()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="color-picker-section">
+                    <label for="new-nickname">Nickname:</label>
+                    <input type="text" id="new-nickname" class="form-input" maxlength="80">
+                </div>
+                <div class="color-picker-section">
+                    <label for="new-color">Color:</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="new-color" value="#ffffff">
+                        <span id="new-color-preview">#ffffff</span>
+                    </div>
+                </div>
+                <div class="color-picker-section">
+                    <label>Colores populares:</label>
+                    <div class="preset-colors">
+                        <button class="preset-color" style="background: #ef4444" data-color="#ef4444" onclick="selectPresetColor(this)"></button>
+                        <button class="preset-color" style="background: #f97316" data-color="#f97316" onclick="selectPresetColor(this)"></button>
+                        <button class="preset-color" style="background: #eab308" data-color="#eab308" onclick="selectPresetColor(this)"></button>
+                        <button class="preset-color" style="background: #22c55e" data-color="#22c55e" onclick="selectPresetColor(this)"></button>
+                        <button class="preset-color" style="background: #3b82f6" data-color="#3b82f6" onclick="selectPresetColor(this)"></button>
+                        <button class="preset-color" style="background: #8b5cf6" data-color="#8b5cf6" onclick="selectPresetColor(this)"></button>
+                        <button class="preset-color" style="background: #ec4899" data-color="#ec4899" onclick="selectPresetColor(this)"></button>
+                        <button class="preset-color" style="background: #ffffff" data-color="#ffffff" onclick="selectPresetColor(this)"></button>
+                    </div>
+                </div>
+                <button class="btn" onclick="saveProfile()">Guardar cambios</button>
+                <p id="profile-error" class="error-message" style="display: none;"></p>
+                <p id="profile-success" class="success-message" style="display: none;"></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="emoji-picker" class="emoji-picker" style="display: none;">
+        <div class="emoji-picker-header">
+            <span>Emojis</span>
+            <button class="emoji-picker-close" onclick="toggleEmojiPicker()">&times;</button>
+        </div>
+        <div class="emoji-picker-body">
+            <div class="emoji-category">
+                <div class="emoji-category-title">Caritas</div>
+                <div class="emoji-grid">
+                    <button class="emoji-btn" onclick="insertEmoji('😀')">😀</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😃')">😃</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😄')">😄</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😁')">😁</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😆')">😆</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😅')">😅</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤣')">🤣</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😂')">😂</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🙂')">🙂</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😊')">😊</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😇')">😇</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🥰')">🥰</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😍')">😍</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤩')">🤩</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😘')">😘</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😗')">😗</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😋')">😋</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😛')">😛</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😜')">😜</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤪')">🤪</button>
+                    <button class="emoji-btn" onclick="insertEmoji('😝')">😝</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤑')">🤑</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤗')">🤗</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤭')">🤭</button>
+                </div>
+            </div>
+            <div class="emoji-category">
+                <div class="emoji-category-title">Gestos</div>
+                <div class="emoji-grid">
+                    <button class="emoji-btn" onclick="insertEmoji('👍')">👍</button>
+                    <button class="emoji-btn" onclick="insertEmoji('👎')">👎</button>
+                    <button class="emoji-btn" onclick="insertEmoji('👏')">👏</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🙌')">🙌</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤝')">🤝</button>
+                    <button class="emoji-btn" onclick="insertEmoji('👊')">👊</button>
+                    <button class="emoji-btn" onclick="insertEmoji('✊')">✊</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤛')">🤛</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤜')">🤜</button>
+                    <button class="emoji-btn" onclick="insertEmoji('👋')">👋</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤚')">🤚</button>
+                    <button class="emoji-btn" onclick="insertEmoji('✋')">✋</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🖖')">🖖</button>
+                    <button class="emoji-btn" onclick="insertEmoji('👌')">👌</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤌')">🤌</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🤏')">🤏</button>
+                    <button class="emoji-btn" onclick="insertEmoji('💪')">💪</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🙏')">🙏</button>
+                    <button class="emoji-btn" onclick="insertEmoji('❤️')">❤️</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🔥')">🔥</button>
+                    <button class="emoji-btn" onclick="insertEmoji('⭐')">⭐</button>
+                    <button class="emoji-btn" onclick="insertEmoji('🎉')">🎉</button>
+                    <button class="emoji-btn" onclick="insertEmoji('💯')">💯</button>
+                    <button class="emoji-btn" onclick="insertEmoji('✅')">✅</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
 </body>
 </html>

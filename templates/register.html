@@ -3,41 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro - pythonChat</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>Registro - QuickChat</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <header>
-      <div class="logo-container">
-          <img src="{{ url_for('static', filename='logo.webp') }}" alt="Logo" class="logo">
-      </div>
-      <div class="title-container">
-          <h1>Regístrate en pythonChat</h1>
-      </div>
-  </header>
-  <div id="register-container">
-    <form id="register-form" method="post" action="{{ url_for('register') }}" class="form-container">
-        <div class="form-group">
-            <input type="text" id="username" name="Nombre de usuario" placeholder="Usuario" required>
-        </div>
+    <header>
+        <img src="/static/logo.webp" alt="Logo" class="logo">
+        <h1>Crear cuenta</h1>
+    </header>
 
-        <div class="form-group">
-            <input type="password" id="password" name="Contraseña" placeholder="Contraseña" required>
-        </div>
+    <div class="auth-container">
+        <div class="auth-card">
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" class="form-input" placeholder="Nombre de usuario" required pattern="^[a-zA-Z0-9_]+$" minlength="3" maxlength="80" autocomplete="username">
+                </div>
 
-        <div class="form-group">
-            <input type="text" id="nickname" name="Nick" placeholder="Nickname" required>
-        </div>
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" class="form-input" placeholder="Mínimo 6 caracteres" required minlength="6" maxlength="128" autocomplete="new-password">
+                    <p class="password-hint">Debe tener al menos 6 caracteres, una mayúscula, una minúscula y un número</p>
+                </div>
 
-        <div class="form-group">
-          <label for="color">Color del nick:</label>
-          <input type="color" id="color" name="color" class="color-input" required>
-      </div>
-        <button type="submit">Crear cuenta</button>
-        <button onclick="window.location.href='/'" style="margin-top: 10px; background-color: rgb(75, 74, 74, 0.8);" type="back">Volver a inicio</button>
-    </form>
-</div>
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+                <div class="form-group">
+                    <label for="nickname">Nickname</label>
+                    <input type="text" id="nickname" class="form-input" placeholder="Cómo te mostrarás en el chat" required minlength="1" maxlength="80">
+                </div>
+
+                <div class="form-group">
+                    <label>Color del nick</label>
+                    <div class="color-input-wrapper">
+                        <input type="color" id="color" value="#3b82f6">
+                        <span id="color-preview" style="font-size: 0.875rem; color: var(--text-secondary);">#3b82f6</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn">Crear cuenta</button>
+
+                <p id="error-message" class="error-message" style="display: none;"></p>
+
+                <button type="button" class="btn btn-secondary" onclick="window.location.href='/login'">Volver al login</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const colorInput = document.getElementById('color');
+        const colorPreview = document.getElementById('color-preview');
+
+        colorInput.addEventListener('input', function() {
+            colorPreview.textContent = this.value;
+            colorPreview.style.color = this.value;
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const errorMsg = document.getElementById('error-message');
+            const submitBtn = this.querySelector('button[type="submit"]');
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Creando cuenta...';
+            errorMsg.style.display = 'none';
+
+            const data = {
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                nickname: document.getElementById('nickname').value,
+                color: document.getElementById('color').value
+            };
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    window.location.href = '/login';
+                } else {
+                    const error = await response.json();
+                    errorMsg.textContent = error.detail || 'Error en el registro';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Error de conexión. Intenta de nuevo.';
+                errorMsg.style.display = 'block';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Crear cuenta';
+            }
+        });
+    </script>
 </body>
-
 </html>
