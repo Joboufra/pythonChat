@@ -1,53 +1,42 @@
-# Python Chat
+Aplicación de chat en tiempo real construida con FastAPI, WebSockets y PostgreSQL.
 
-[![Python](https://img.shields.io/badge/Python-3.x-blue.svg)](https://www.python.org/)
-[![Flask](https://img.shields.io/badge/Flask-3.0.0-green.svg)](https://flask.palletsprojects.com/en/3.0.x/)
+## Características
 
-Una aplicación simple de chat creada con Python, usando Flask, WebSockets y PostgreSQL para tener mensajería en tiempo real y persistencia.
+- **Mensajería en Tiempo Real**: Comunicación instantánea mediante WebSockets.
+- **Perfiles Personalables**: Cambia tu apodo y color en tiempo real.
+- **Soporte de Emojis**: Selector de emojis integrado.
+- **Nuevo diseño**: UI rediseñada, optimizada para móvil y escritorio.
+- **Seguridad**: Rate limiting, sanitize de inputs y headers de seguridad.
 
-<p align="center">
-  <img src="https://github.com/Joboufra/pythonChat/assets/46650791/d7a44ee8-c475-4a8a-a8d9-c3245dcdb17d" alt="Chat Image 1"/>
-</p>
-<p align="center">
-  <img src="https://github.com/Joboufra/pythonChat/assets/46650791/d05cb60c-a0c1-4ddf-a263-9acaac0c8b55" alt="Chat Image 2"/>
-</p>
+## Tecnologías
 
-## Tecnologías utilizadas
+- **Backend**: Python, FastAPI, Uvicorn
+- **Base de Datos**: PostgreSQL (asyncpg)
+- **ORM**: SQLAlchemy 2.0
+- **Validación**: Pydantic
+- **Frontend**: JavaScript vainilla, CSS3
 
-- Python
-- Flask
-- WebSocket
-- HTML/CSS
-- JavaScript
+## Instalación
 
-## Features
+1. Clona el repositorio:
+   ```bash
+   git clone https://github.com/Joboufra/pythonChat
+   ```
 
-- Chat en tiempo real usando WebSockets.
-- Los mensajes se persisten en una base de datos de PostgreSQL
-- Limpiar historial de chat con un click
-- Gestión de usuarios y autenticación
-- Customización de usuario (Nickname, color de chat)
+2. Crea un entorno virtual e instala las dependencias:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
 
-## Requisitos
+3. Configura las variables de entorno en el archivo `.env`.
 
-- **Python**: Debes tener Python instalado en tu sistema. Puedes descargarlo [aquí](https://www.python.org/downloads/).
+## Ejecución
 
-A nivel paquetes, necesitarás los siguientes:
-- **Flask**: Flask es un microframework de Python para construir aplicaciones web.: 
-```pip install Flask```
-- **Flask-SocketIO**: Proporciona capacidades de Socket.IO para aplicaciones Flask, usada para la comunicación en tiempo real.
-```pip install Flask```
-- **Flask-SQLAlchemy**: Un ORM para Python, usado para interactuar con bases de datos.
-```pip install Flask-SQLAlchemy```
-- **Werkzeug**: Una biblioteca WSGI para aplicaciones web en Python. Se utiliza para funciones de seguridad como la generación y verificación de hashes de contraseñas.
-```pip install Werkzeug```
-- **Flask-Login**: Proporciona gestión de sesiones de usuario para Flask, utilizada para manejar la autenticación de usuarios.
-```pip install Flask-Login```
+Inicia el servidor:
+```bash
+uvicorn app.main:app --reload
+```
 
-## Como funciona la aplicación?
-
-- Introduce tu mensaje en el campo de texto y pulsa "ENTER" o haz click en el botón "Enviar" para enviar un mensaje.
-- Dicho mensaje enviado se visualizará en la parte superior, indicando un timestamp y tu mensaje enviado.
-- Puedes hacer click en el botón de la papelera para borrar el historial de chat.
-
-
+La aplicación estará disponible en `http://localhost:8000`.
